@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1f2937">
+<title>PSB Suppliers</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .dn-font { font-family: 'Noto Sans Devanagari', 'Inter', sans-serif; }
+  .tile-shadow { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+  .input { @apply w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500; }
+  .label { @apply block text-sm font-semibold text-gray-700 mb-1.5; }
+  .btn-primary { @apply w-full bg-blue-600 text-white font-bold py-4 rounded-xl text-lg active:bg-blue-700 shadow-lg; }
+  .btn-secondary { @apply w-full bg-gray-200 text-gray-800 font-semibold py-3 rounded-xl active:bg-gray-300; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 0.75rem; max-height: 200px; overflow-y: auto; z-index: 50; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-top: 4px; }
+  .autocomplete-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:active { background: #f3f4f6; }
+  .autocomplete-item .name { font-weight: 600; color: #1f2937; }
+  .autocomplete-item .mobile { font-size: 0.85rem; color: #6b7280; }
+</style>
+</head>
+<body class="bg-gray-50 pb-24 dn-font">
+
+<!-- ===================== HOME SCREEN ===================== -->
+<div id="screen-home" class="screen active">
+  <!-- Header -->
+  <div class="bg-gradient-to-br from-blue-700 to-blue-900 text-white p-5 pb-8 rounded-b-3xl">
+    <div class="text-xs opacity-80">॥ श्री गणेशाय नमः ॥</div>
+    <div class="text-xl font-bold mt-1">PSB Suppliers</div>
+    <div class="text-xs opacity-90">Poorv Sainik Building Material</div>
+    <div id="todayDate" class="text-sm opacity-95 mt-3 font-medium"></div>
+  </div>
+
+  <!-- Today summary card -->
+  <div class="px-5 -mt-5">
+    <div class="bg-white rounded-2xl tile-shadow p-4">
+      <div class="text-sm font-bold text-gray-600 mb-3">आज का सारांश / Today</div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div>
+          <div class="text-xs text-gray-500">बिक्री</div>
+          <div id="todaySales" class="text-base font-bold text-green-600">₹0</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500">खर्च</div>
+          <div id="todayExpense" class="text-base font-bold text-red-600">₹0</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500">मुनाफा</div>
+          <div id="todayProfit" class="text-base font-bold text-blue-600">₹0</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center mt-3 pt-3 border-t border-gray-100">
+        <div>
+          <div class="text-xs text-gray-500">नगद IN</div>
+          <div id="todayCashIn" class="text-sm font-bold">₹0</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500">ऑनलाइन IN</div>
+          <div id="todayOnlineIn" class="text-sm font-bold">₹0</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500">उधार</div>
+          <div id="todayCredit" class="text-sm font-bold text-orange-600">₹0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 Action Tiles -->
+  <div class="px-5 mt-5">
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="show('sale')" class="bg-white rounded-2xl tile-shadow p-5 text-center active:scale-95 transition-transform">
+        <div class="text-4xl mb-2">🚛</div>
+        <div class="font-bold text-base text-gray-800">बिक्री</div>
+        <div class="text-xs text-gray-500">Sale</div>
+      </button>
+      <button onclick="show('expense')" class="bg-white rounded-2xl tile-shadow p-5 text-center active:scale-95 transition-transform">
+        <div class="text-4xl mb-2">💼</div>
+        <div class="font-bold text-base text-gray-800">खर्च</div>
+        <div class="text-xs text-gray-500">Expense</div>
+      </button>
+      <button onclick="show('inward')" class="bg-white rounded-2xl tile-shadow p-5 text-center active:scale-95 transition-transform">
+        <div class="text-4xl mb-2">📦</div>
+        <div class="font-bold text-base text-gray-800">आवक</div>
+        <div class="text-xs text-gray-500">Inward Stock</div>
+      </button>
+      <button onclick="show('cash')" class="bg-white rounded-2xl tile-shadow p-5 text-center active:scale-95 transition-transform">
+        <div class="text-4xl mb-2">💵</div>
+        <div class="font-bold text-base text-gray-800">नगद</div>
+        <div class="text-xs text-gray-500">Cash IN / OUT</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Recent + Manage -->
+  <div class="px-5 mt-5">
+    <button onclick="show('recent')" class="btn-secondary">📋 आज के एंट्रीज़ देखें / View Today's Entries</button>
+  </div>
+
+  <div class="px-5 mt-3 grid grid-cols-2 gap-3">
+    <button onclick="show('contacts')" class="btn-secondary text-sm">📞 ग्राहक / वेंडर</button>
+    <button onclick="exportCSV()" class="btn-secondary text-sm">⬇️ Export CSV</button>
+  </div>
+</div>
+
+<!-- ===================== SALE SCREEN ===================== -->
+<div id="screen-sale" class="screen">
+  <div class="bg-blue-700 text-white p-4 flex items-center sticky top-0 z-10">
+    <button onclick="show('home')" class="text-2xl mr-3">←</button>
+    <div class="font-bold text-lg">🚛 नई बिक्री / New Sale</div>
+  </div>
+  <div class="p-5 space-y-4">
+    <div><label class="label">दिनांक / Date</label><input id="sale-date" type="date" class="input"></div>
+    <div><label class="label">वाहन / Vehicle</label>
+      <select id="sale-vehicle" class="input">
+        <option>407</option><option>टेम्पो / Tempo</option><option>ट्रैक्टर / Tractor</option><option>22-चक्का / 22-Chakka</option><option>अन्य / Other</option>
+      </select>
+    </div>
+    <div><label class="label">माल / Material</label>
+      <select id="sale-material" class="input">
+        <option>बजरी / Bajri</option><option>ग्रिट 20mm</option><option>ग्रिट 40mm</option><option>सीमेंट / Cement</option><option>ईंट / Brick</option><option>अन्य / Other</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-3 gap-2">
+      <div class="col-span-2"><label class="label">मात्रा / Qty</label><input id="sale-qty" type="number" inputmode="decimal" class="input" placeholder="0"></div>
+      <div><label class="label">इकाई</label>
+        <select id="sale-unit" class="input">
+          <option>cuft / ft</option><option>parat</option><option>bag</option><option>kg</option>
+        </select>
+      </div>
+    </div>
+    <div class="relative"><label class="label">ग्राहक का नाम / Customer</label>
+      <input id="sale-customer" type="text" class="input" placeholder="नाम लिखो..." autocomplete="off" oninput="suggest(this, 'customers', 'sale')">
+      <div id="sale-customer-list" class="autocomplete-list" style="display:none"></div>
+    </div>
+    <div><label class="label">मोबाइल नं. / Mobile</label><input id="sale-mobile" type="tel" inputmode="tel" class="input" placeholder="98xxxxxxxx"></div>
+    <div><label class="label">क्षेत्र / Area / Site</label><input id="sale-site" type="text" class="input" placeholder="मानसरोवर..."></div>
+    <div><label class="label">कुल राशि ₹ / Total</label><input id="sale-total" type="number" inputmode="numeric" class="input text-lg font-bold" placeholder="0" oninput="recalcSale()"></div>
+    <div class="bg-gray-100 rounded-2xl p-3 space-y-3">
+      <div class="text-xs font-bold text-gray-600">भुगतान विभाजन / Payment Split</div>
+      <div class="grid grid-cols-3 gap-2">
+        <div><label class="label text-xs">नगद / Cash</label><input id="sale-cash" type="number" inputmode="numeric" class="input" placeholder="0" value="0" oninput="recalcCredit()"></div>
+        <div><label class="label text-xs">ऑनलाइन</label><input id="sale-online" type="number" inputmode="numeric" class="input" placeholder="0" value="0" oninput="recalcCredit()"></div>
+        <div><label class="label text-xs">उधार</label><input id="sale-credit" type="number" inputmode="numeric" class="input bg-orange-50 font-bold" placeholder="0" value="0" readonly></div>
+      </div>
+      <div id="sale-warn" class="text-xs text-red-600 hidden">कुल = नगद + ऑनलाइन + उधार बराबर नहीं</div>
+    </div>
+    <div><label class="label">नोट्स / Notes</label><input id="sale-notes" type="text" class="input" placeholder="कच्ची / मुख्य..."></div>
+    <button class="btn-primary" onclick="saveSale()">सेव / Save</button>
+  </div>
+</div>
+
+<!-- ===================== EXPENSE SCREEN ===================== -->
+<div id="screen-expense" class="screen">
+  <div class="bg-red-600 text-white p-4 flex items-center sticky top-0 z-10">
+    <button onclick="show('home')" class="text-2xl mr-3">←</button>
+    <div class="font-bold text-lg">💼 खर्च / Expense</div>
+  </div>
+  <div class="p-5 space-y-4">
+    <div><label class="label">दिनांक / Date</label><input id="exp-date" type="date" class="input"></div>
+    <div><label class="label">प्रकार / Type</label>
+      <select id="exp-type" class="input">
+        <option>लेबर / Labor</option><option>लोडर / Loader</option><option>डीज़ल / Diesel</option><option>तेल / Oil</option><option>तुलाई / Weighing</option><option>अन्य / Other</option>
+      </select>
+    </div>
+    <div><label class="label">विवरण / Description</label><input id="exp-desc" type="text" class="input" placeholder="Mevati 1×400 + Umar 1×250..."></div>
+    <div><label class="label">राशि ₹ / Amount</label><input id="exp-amount" type="number" inputmode="numeric" class="input text-lg font-bold" placeholder="0"></div>
+    <div><label class="label">मोड / Mode</label>
+      <select id="exp-mode" class="input"><option>नगद / Cash</option><option>ऑनलाइन / Online</option></select>
+    </div>
+    <div class="relative"><label class="label">किसको दिया / Paid to</label>
+      <input id="exp-paidto" type="text" class="input" placeholder="Umar..." autocomplete="off" oninput="suggest(this, 'vendors', 'exp')">
+      <div id="exp-paidto-list" class="autocomplete-list" style="display:none"></div>
+    </div>
+    <div><label class="label">मोबाइल / Mobile (optional)</label><input id="exp-mobile" type="tel" inputmode="tel" class="input" placeholder="98xxxxxxxx"></div>
+    <div><label class="label">नोट्स / Notes</label><input id="exp-notes" type="text" class="input"></div>
+    <button class="btn-primary" onclick="saveExpense()">सेव / Save</button>
+  </div>
+</div>
+
+<!-- ===================== INWARD SCREEN ===================== -->
+<div id="screen-inward" class="screen">
+  <div class="bg-purple-700 text-white p-4 flex items-center sticky top-0 z-10">
+    <button onclick="show('home')" class="text-2xl mr-3">←</button>
+    <div class="font-bold text-lg">📦 आवक / Inward Stock</div>
+  </div>
+  <div class="p-5 space-y-4">
+    <div><label class="label">दिनांक / Date</label><input id="in-date" type="date" class="input"></div>
+    <div class="relative"><label class="label">सप्लायर / Supplier</label>
+      <input id="in-supplier" type="text" class="input" placeholder="Jitendra..." autocomplete="off" oninput="suggest(this, 'suppliers', 'in')">
+      <div id="in-supplier-list" class="autocomplete-list" style="display:none"></div>
+    </div>
+    <div><label class="label">मोबाइल / Mobile</label><input id="in-mobile" type="tel" inputmode="tel" class="input"></div>
+    <div><label class="label">माल / Material</label>
+      <select id="in-material" class="input">
+        <option>बजरी / Bajri</option><option>ग्रिट 20mm</option><option>ग्रिट 40mm</option><option>सीमेंट / Cement</option><option>ईंट / Brick</option><option>अन्य / Other</option>
+      </select>
+    </div>
+    <div><label class="label">वज़न (kg) / Weight</label><input id="in-weight" type="number" inputmode="decimal" class="input" placeholder="38530"></div>
+    <div><label class="label">रेट / Rate (optional)</label><input id="in-rate" type="number" inputmode="decimal" class="input" placeholder="0"></div>
+    <div><label class="label">कुल राशि ₹ / Total</label><input id="in-total" type="number" inputmode="numeric" class="input text-lg font-bold" placeholder="0"></div>
+    <div><label class="label">भुगतान ₹ / Paid Amount</label><input id="in-paid" type="number" inputmode="numeric" class="input" placeholder="0"></div>
+    <div><label class="label">मोड / Mode</label>
+      <select id="in-mode" class="input"><option>नगद / Cash</option><option>ऑनलाइन / Online</option><option>अब नहीं / Not yet</option></select>
+    </div>
+    <div><label class="label">नोट्स / Notes (गाड़ी नं., बकाया)</label><input id="in-notes" type="text" class="input"></div>
+    <button class="btn-primary" onclick="saveInward()">सेव / Save</button>
+  </div>
+</div>
+
+<!-- ===================== CASH FLOW SCREEN ===================== -->
+<div id="screen-cash" class="screen">
+  <div class="bg-emerald-700 text-white p-4 flex items-center sticky top-0 z-10">
+    <button onclick="show('home')" class="text-2xl mr-3">←</button>
+    <div class="font-bold text-lg">💵 नगद / Cash Flow</div>
+  </div>
+  <div class="p-5 space-y-4">
+    <div class="grid grid-cols-2 gap-2 bg-gray-100 rounded-2xl p-1">
+      <button id="cash-tab-in" onclick="setCashDir('in')" class="py-3 rounded-xl bg-emerald-600 text-white font-bold">⬇ Cash IN (जमा)</button>
+      <button id="cash-tab-out" onclick="setCashDir('out')" class="py-3 rounded-xl text-gray-600 font-bold">⬆ Cash OUT (पुरानी देयता)</button>
+    </div>
+    <div><label class="label">दिनांक / Date</label><input id="cash-date" type="date" class="input"></div>
+    <div class="relative"><label id="cash-party-label" class="label">ग्राहक / Customer</label>
+      <input id="cash-party" type="text" class="input" placeholder="नाम..." autocomplete="off" oninput="suggest(this, currentCashDir==='in' ? 'customers' : 'vendors', 'cash')">
+      <div id="cash-party-list" class="autocomplete-list" style="display:none"></div>
+    </div>
+    <div><label class="label">मोबाइल / Mobile</label><input id="cash-mobile" type="tel" inputmode="tel" class="input"></div>
+    <div><label class="label">राशि ₹ / Amount</label><input id="cash-amount" type="number" inputmode="numeric" class="input text-lg font-bold" placeholder="0"></div>
+    <div><label class="label">मोड / Mode</label>
+      <select id="cash-mode" class="input"><option>नगद / Cash</option><option>ऑनलाइन / Online</option></select>
+    </div>
+    <div><label class="label">किस तारीख की उधारी? / Against date</label><input id="cash-against" type="date" class="input"></div>
+    <div><label class="label">नोट्स / Notes</label>
+      <select id="cash-status" class="input"><option>पूरा / Full</option><option>आंशिक / Partial</option></select>
+    </div>
+    <div><label class="label">अन्य नोट्स</label><input id="cash-notes" type="text" class="input"></div>
+    <button class="btn-primary" onclick="saveCash()">सेव / Save</button>
+  </div>
+</div>
+
+<!-- ===================== RECENT ENTRIES ===================== -->
+<div id="screen-recent" class="screen">
+  <div class="bg-gray-700 text-white p-4 flex items-center sticky top-0 z-10">
+    <button onclick="show('home')" class="text-2xl mr-3">←</button>
+    <div class="font-bold text-lg">📋 आज की एंट्रीज़ / Today</div>
+  </div>
+  <div id="recent-list" class="p-4 space-y-3"></div>
+</div>
+
+<!-- ===================== CONTACTS ===================== -->
+<div id="screen-contacts" class="screen">
+  <div class="bg-gray-700 text-white p-4 flex items-center sticky top-0 z-10">
+    <button onclick="show('home')" class="text-2xl mr-3">←</button>
+    <div class="font-bold text-lg">📞 Contacts</div>
+  </div>
+  <div class="p-4">
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      <button onclick="showContactType('customers')" class="bg-blue-100 text-blue-800 font-bold py-2 rounded-xl text-sm">ग्राहक</button>
+      <button onclick="showContactType('vendors')" class="bg-red-100 text-red-800 font-bold py-2 rounded-xl text-sm">वेंडर</button>
+      <button onclick="showContactType('suppliers')" class="bg-purple-100 text-purple-800 font-bold py-2 rounded-xl text-sm">सप्लायर</button>
+    </div>
+    <div id="contact-list" class="space-y-2"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Data layer (localStorage)
+// ============================================================
+const DB_KEY = 'psb_db_v1';
+
+function loadDB() {
+  const raw = localStorage.getItem(DB_KEY);
+  if (raw) return JSON.parse(raw);
+  return {
+    sales: [], expenses: [], inward: [], cash: [],
+    customers: {}, vendors: {}, suppliers: {}
+  };
+}
+function saveDB(db) {
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+let db = loadDB();
+
+// ============================================================
+// Screen navigation
+// ============================================================
+function show(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+  if (name === 'home') updateHome();
+  if (name === 'recent') renderRecent();
+  if (name === 'contacts') showContactType('customers');
+  if (['sale','expense','inward','cash'].includes(name)) prefillDate();
+}
+
+function prefillDate() {
+  const today = new Date().toISOString().split('T')[0];
+  ['sale-date','exp-date','in-date','cash-date','cash-against'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
+}
+
+// ============================================================
+// Home / today summary
+// ============================================================
+function todayDateStr() { return new Date().toISOString().split('T')[0]; }
+function fmtMoney(n) { return '₹' + (n || 0).toLocaleString('en-IN'); }
+
+function updateHome() {
+  const today = todayDateStr();
+  const sales = db.sales.filter(s => s.date === today);
+  const expenses = db.expenses.filter(e => e.date === today);
+
+  const totalSales = sales.reduce((a, b) => a + (+b.total || 0), 0);
+  const totalCash = sales.reduce((a, b) => a + (+b.cash || 0), 0);
+  const totalOnline = sales.reduce((a, b) => a + (+b.online || 0), 0);
+  const totalCredit = sales.reduce((a, b) => a + (+b.credit || 0), 0);
+  const totalExp = expenses.reduce((a, b) => a + (+b.amount || 0), 0);
+
+  document.getElementById('todaySales').textContent = fmtMoney(totalSales);
+  document.getElementById('todayExpense').textContent = fmtMoney(totalExp);
+  document.getElementById('todayProfit').textContent = fmtMoney(totalSales - totalExp);
+  document.getElementById('todayCashIn').textContent = fmtMoney(totalCash);
+  document.getElementById('todayOnlineIn').textContent = fmtMoney(totalOnline);
+  document.getElementById('todayCredit').textContent = fmtMoney(totalCredit);
+
+  const d = new Date();
+  const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  document.getElementById('todayDate').textContent = d.toLocaleDateString('en-IN', opts);
+}
+
+// ============================================================
+// Autocomplete suggestions
+// ============================================================
+function suggest(input, type, screen) {
+  const q = input.value.trim().toLowerCase();
+  const listEl = document.getElementById(input.id + '-list');
+  if (q.length < 1) { listEl.style.display = 'none'; return; }
+  const pool = db[type] || {};
+  const matches = Object.entries(pool)
+    .filter(([name]) => name.toLowerCase().includes(q))
+    .slice(0, 6);
+  if (!matches.length) { listEl.style.display = 'none'; return; }
+  listEl.innerHTML = matches.map(([name, data]) =>
+    `<div class="autocomplete-item" onclick="pickContact('${screen}', '${type}', ${JSON.stringify(name).replace(/"/g, '&quot;')})">
+       <div class="name">${name}</div>
+       <div class="mobile">${data.mobile || ''}</div>
+     </div>`
+  ).join('');
+  listEl.style.display = 'block';
+}
+function pickContact(screen, type, name) {
+  const data = db[type][name];
+  if (screen === 'sale') {
+    document.getElementById('sale-customer').value = name;
+    document.getElementById('sale-mobile').value = data.mobile || '';
+  } else if (screen === 'exp') {
+    document.getElementById('exp-paidto').value = name;
+    document.getElementById('exp-mobile').value = data.mobile || '';
+  } else if (screen === 'in') {
+    document.getElementById('in-supplier').value = name;
+    document.getElementById('in-mobile').value = data.mobile || '';
+  } else if (screen === 'cash') {
+    document.getElementById('cash-party').value = name;
+    document.getElementById('cash-mobile').value = data.mobile || '';
+  }
+  document.querySelectorAll('.autocomplete-list').forEach(el => el.style.display = 'none');
+}
+
+function upsertContact(type, name, mobile) {
+  if (!name) return;
+  if (!db[type][name]) db[type][name] = { mobile: mobile || '', count: 0 };
+  if (mobile) db[type][name].mobile = mobile;
+  db[type][name].count = (db[type][name].count || 0) + 1;
+}
+
+// ============================================================
+// SALE
+// ============================================================
+function recalcCredit() {
+  const total = +document.getElementById('sale-total').value || 0;
+  const cash = +document.getElementById('sale-cash').value || 0;
+  const online = +document.getElementById('sale-online').value || 0;
+  const credit = total - cash - online;
+  document.getElementById('sale-credit').value = credit >= 0 ? credit : 0;
+  const warn = document.getElementById('sale-warn');
+  if (cash + online > total) warn.classList.remove('hidden');
+  else warn.classList.add('hidden');
+}
+function recalcSale() { recalcCredit(); }
+
+function saveSale() {
+  const total = +document.getElementById('sale-total').value || 0;
+  if (!total) { alert('कुल राशि ज़रूरी है'); return; }
+  const customer = document.getElementById('sale-customer').value.trim();
+  const mobile = document.getElementById('sale-mobile').value.trim();
+  const entry = {
+    id: Date.now(),
+    date: document.getElementById('sale-date').value,
+    vehicle: document.getElementById('sale-vehicle').value,
+    material: document.getElementById('sale-material').value,
+    qty: document.getElementById('sale-qty').value,
+    unit: document.getElementById('sale-unit').value,
+    customer, mobile,
+    site: document.getElementById('sale-site').value,
+    total,
+    cash: +document.getElementById('sale-cash').value || 0,
+    online: +document.getElementById('sale-online').value || 0,
+    credit: +document.getElementById('sale-credit').value || 0,
+    notes: document.getElementById('sale-notes').value,
+  };
+  db.sales.push(entry);
+  upsertContact('customers', customer, mobile);
+  saveDB(db);
+  ['sale-qty','sale-customer','sale-mobile','sale-site','sale-total','sale-cash','sale-online','sale-credit','sale-notes'].forEach(id => document.getElementById(id).value = id.endsWith('cash') || id.endsWith('online') || id.endsWith('credit') ? '0' : '');
+  alert('बिक्री सेव हो गई!');
+  show('home');
+}
+
+// ============================================================
+// EXPENSE
+// ============================================================
+function saveExpense() {
+  const amount = +document.getElementById('exp-amount').value || 0;
+  if (!amount) { alert('राशि ज़रूरी है'); return; }
+  const paidto = document.getElementById('exp-paidto').value.trim();
+  const mobile = document.getElementById('exp-mobile').value.trim();
+  const entry = {
+    id: Date.now(),
+    date: document.getElementById('exp-date').value,
+    type: document.getElementById('exp-type').value,
+    desc: document.getElementById('exp-desc').value,
+    amount,
+    mode: document.getElementById('exp-mode').value,
+    paidto, mobile,
+    notes: document.getElementById('exp-notes').value,
+  };
+  db.expenses.push(entry);
+  upsertContact('vendors', paidto, mobile);
+  saveDB(db);
+  ['exp-desc','exp-amount','exp-paidto','exp-mobile','exp-notes'].forEach(id => document.getElementById(id).value = '');
+  alert('खर्च सेव हो गया!');
+  show('home');
+}
+
+// ============================================================
+// INWARD
+// ============================================================
+function saveInward() {
+  const total = +document.getElementById('in-total').value || 0;
+  if (!total) { alert('कुल राशि ज़रूरी है'); return; }
+  const supplier = document.getElementById('in-supplier').value.trim();
+  const mobile = document.getElementById('in-mobile').value.trim();
+  const entry = {
+    id: Date.now(),
+    date: document.getElementById('in-date').value,
+    supplier, mobile,
+    material: document.getElementById('in-material').value,
+    weight: +document.getElementById('in-weight').value || 0,
+    rate: +document.getElementById('in-rate').value || 0,
+    total,
+    paid: +document.getElementById('in-paid').value || 0,
+    mode: document.getElementById('in-mode').value,
+    notes: document.getElementById('in-notes').value,
+  };
+  db.inward.push(entry);
+  upsertContact('suppliers', supplier, mobile);
+  saveDB(db);
+  ['in-supplier','in-mobile','in-weight','in-rate','in-total','in-paid','in-notes'].forEach(id => document.getElementById(id).value = '');
+  alert('आवक सेव हो गई!');
+  show('home');
+}
+
+// ============================================================
+// CASH FLOW
+// ============================================================
+let currentCashDir = 'in';
+function setCashDir(dir) {
+  currentCashDir = dir;
+  if (dir === 'in') {
+    document.getElementById('cash-tab-in').className = 'py-3 rounded-xl bg-emerald-600 text-white font-bold';
+    document.getElementById('cash-tab-out').className = 'py-3 rounded-xl text-gray-600 font-bold';
+    document.getElementById('cash-party-label').textContent = 'ग्राहक से प्राप्त / From Customer';
+  } else {
+    document.getElementById('cash-tab-out').className = 'py-3 rounded-xl bg-red-600 text-white font-bold';
+    document.getElementById('cash-tab-in').className = 'py-3 rounded-xl text-gray-600 font-bold';
+    document.getElementById('cash-party-label').textContent = 'किसको दिया / Paid to (Supplier)';
+  }
+}
+function saveCash() {
+  const amount = +document.getElementById('cash-amount').value || 0;
+  if (!amount) { alert('राशि ज़रूरी है'); return; }
+  const party = document.getElementById('cash-party').value.trim();
+  const mobile = document.getElementById('cash-mobile').value.trim();
+  const entry = {
+    id: Date.now(),
+    direction: currentCashDir,
+    date: document.getElementById('cash-date').value,
+    party, mobile, amount,
+    mode: document.getElementById('cash-mode').value,
+    against: document.getElementById('cash-against').value,
+    status: document.getElementById('cash-status').value,
+    notes: document.getElementById('cash-notes').value,
+  };
+  db.cash.push(entry);
+  upsertContact(currentCashDir === 'in' ? 'customers' : 'vendors', party, mobile);
+  saveDB(db);
+  ['cash-party','cash-mobile','cash-amount','cash-notes'].forEach(id => document.getElementById(id).value = '');
+  alert((currentCashDir === 'in' ? 'जमा' : 'भुगतान') + ' सेव हो गया!');
+  show('home');
+}
+
+// ============================================================
+// Recent entries
+// ============================================================
+function renderRecent() {
+  const today = todayDateStr();
+  const list = document.getElementById('recent-list');
+  const allEntries = [
+    ...db.sales.filter(s => s.date === today).map(s => ({...s, kind: 'Sale', color: 'bg-blue-50 border-blue-300', label: '🚛 ' + (s.material || '') + ' → ' + (s.customer || s.site || '-'), amt: s.total})),
+    ...db.expenses.filter(e => e.date === today).map(e => ({...e, kind: 'Expense', color: 'bg-red-50 border-red-300', label: '💼 ' + e.type + ': ' + (e.paidto || e.desc || ''), amt: e.amount})),
+    ...db.inward.filter(i => i.date === today).map(i => ({...i, kind: 'Inward', color: 'bg-purple-50 border-purple-300', label: '📦 ' + i.material + ' from ' + (i.supplier || '-'), amt: i.total})),
+    ...db.cash.filter(c => c.date === today).map(c => ({...c, kind: 'Cash ' + c.direction.toUpperCase(), color: c.direction==='in'?'bg-emerald-50 border-emerald-300':'bg-orange-50 border-orange-300', label: (c.direction==='in'?'⬇ ':'⬆ ') + (c.party || '-'), amt: c.amount})),
+  ].sort((a,b) => b.id - a.id);
+
+  if (!allEntries.length) {
+    list.innerHTML = '<div class="text-center text-gray-500 py-12">कोई एंट्री नहीं आज</div>';
+    return;
+  }
+  list.innerHTML = allEntries.map(e => `
+    <div class="${e.color} border rounded-2xl p-3 flex justify-between items-center">
+      <div>
+        <div class="font-bold text-sm">${e.label}</div>
+        <div class="text-xs text-gray-600 mt-0.5">${e.kind}${e.notes ? ' • '+e.notes : ''}</div>
+      </div>
+      <div class="text-right">
+        <div class="font-bold text-base">${fmtMoney(e.amt)}</div>
+        <button onclick="deleteEntry('${e.kind}', ${e.id})" class="text-xs text-red-600">मिटाएं</button>
+      </div>
+    </div>
+  `).join('');
+}
+function deleteEntry(kind, id) {
+  if (!confirm('यह एंट्री मिटानी है?')) return;
+  if (kind === 'Sale') db.sales = db.sales.filter(x => x.id !== id);
+  if (kind === 'Expense') db.expenses = db.expenses.filter(x => x.id !== id);
+  if (kind === 'Inward') db.inward = db.inward.filter(x => x.id !== id);
+  if (kind.startsWith('Cash')) db.cash = db.cash.filter(x => x.id !== id);
+  saveDB(db);
+  renderRecent();
+}
+
+// ============================================================
+// Contacts
+// ============================================================
+function showContactType(type) {
+  const pool = db[type] || {};
+  const list = Object.entries(pool).sort((a,b)=> (b[1].count||0)-(a[1].count||0));
+  const html = list.length ? list.map(([name, data]) => `
+    <div class="bg-white rounded-xl p-3 flex justify-between items-center border">
+      <div>
+        <div class="font-bold">${name}</div>
+        <div class="text-sm text-gray-600">${data.mobile || '— no mobile —'}</div>
+      </div>
+      <div class="text-xs text-gray-500">${data.count || 0} entries</div>
+    </div>
+  `).join('') : '<div class="text-center text-gray-500 py-12">कोई contact नहीं</div>';
+  document.getElementById('contact-list').innerHTML = html;
+}
+
+// ============================================================
+// CSV Export
+// ============================================================
+function exportCSV() {
+  function toCSV(rows, headers) {
+    const head = headers.join(',');
+    const body = rows.map(r => headers.map(h => `"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+    return head + '\n' + body;
+  }
+  const blob = new Blob([
+    '--- SALES ---\n', toCSV(db.sales, ['date','vehicle','material','qty','unit','customer','mobile','site','total','cash','online','credit','notes']), '\n\n',
+    '--- EXPENSES ---\n', toCSV(db.expenses, ['date','type','desc','amount','mode','paidto','mobile','notes']), '\n\n',
+    '--- INWARD ---\n', toCSV(db.inward, ['date','supplier','mobile','material','weight','rate','total','paid','mode','notes']), '\n\n',
+    '--- CASH FLOW ---\n', toCSV(db.cash, ['date','direction','party','mobile','amount','mode','against','status','notes'])
+  ], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'PSB_data_' + todayDateStr() + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ============================================================
+// Init
+// ============================================================
+prefillDate();
+updateHome();
+</script>
+</body>
+</html>
