@@ -9,22 +9,97 @@
 <title>PSB Suppliers</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  * { -webkit-tap-highlight-color: transparent; }
+  * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
   body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   .dn-font { font-family: 'Noto Sans Devanagari', 'Inter', sans-serif; }
   .tile-shadow { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
-  .input { @apply w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500; }
-  .label { @apply block text-sm font-semibold text-gray-700 mb-1.5; }
-  .btn-primary { @apply w-full bg-blue-600 text-white font-bold py-4 rounded-xl text-lg active:bg-blue-700 shadow-lg; }
-  .btn-secondary { @apply w-full bg-gray-200 text-gray-800 font-semibold py-3 rounded-xl active:bg-gray-300; }
+
+  /* Form controls — plain CSS, not @apply (Tailwind CDN doesn't process @apply) */
+  .input {
+    display: block;
+    width: 100%;
+    border: 1.5px solid #d1d5db;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 16px; /* 16px stops iOS zoom on focus */
+    background: white;
+    color: #111827;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1.5;
+  }
+  .input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+  .input::placeholder { color: #9ca3af; }
+
+  /* Dropdown arrow for selects */
+  select.input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-size: 1.1rem;
+    padding-right: 2.5rem;
+  }
+
+  .label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    font-weight: 700;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    font-size: 1.125rem;
+    border: none;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  .btn-primary:active { background: #1d4ed8; transform: scale(0.98); }
+
+  .btn-secondary {
+    display: block;
+    width: 100%;
+    background: #e5e7eb;
+    color: #1f2937;
+    font-weight: 600;
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .btn-secondary:active { background: #d1d5db; }
+
+  /* Form-group spacing — ensures clear separation between rows */
+  .form-group { margin-bottom: 1rem; position: relative; }
+
+  /* Screen visibility */
   .screen { display: none; }
   .screen.active { display: block; }
-  .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 0.75rem; max-height: 200px; overflow-y: auto; z-index: 50; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-top: 4px; }
+
+  /* Autocomplete dropdown */
+  .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 0.75rem; max-height: 220px; overflow-y: auto; z-index: 50; box-shadow: 0 10px 25px rgba(0,0,0,0.12); margin-top: 4px; }
   .autocomplete-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
   .autocomplete-item:last-child { border-bottom: none; }
   .autocomplete-item:active { background: #f3f4f6; }
   .autocomplete-item .name { font-weight: 600; color: #1f2937; }
-  .autocomplete-item .mobile { font-size: 0.85rem; color: #6b7280; }
+  .autocomplete-item .mobile { font-size: 0.85rem; color: #6b7280; margin-top: 2px; }
+
+  /* Number inputs — right-align amount fields look better */
+  input[type="number"].input { font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body class="bg-gray-50 pb-24 dn-font">
